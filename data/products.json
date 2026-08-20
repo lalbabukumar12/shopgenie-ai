@@ -1,0 +1,610 @@
+[
+  {
+    "id": 1,
+    "name": "Dell XPS 13",
+    "brand": "Dell",
+    "price": 85000,
+    "specs": {
+      "cpu": "Intel Core i7-1360P",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 14
+    },
+    "use_case_tags": ["coding", "office"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Apple MacBook Air M2",
+    "brand": "Apple",
+    "price": 95000,
+    "specs": {
+      "cpu": "Apple M2",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Apple GPU 10-core",
+      "battery_life_hours": 18
+    },
+    "use_case_tags": ["coding", "student"],
+    "rating": 4.7,
+    "image_placeholder": "laptop-2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "HP Pavilion Gaming",
+    "brand": "HP",
+    "price": 72000,
+    "specs": {
+      "cpu": "AMD Ryzen 5 5600H",
+      "ram": "16GB",
+      "storage": "1TB HDD + 256GB SSD",
+      "gpu": "NVIDIA GTX 1650",
+      "battery_life_hours": 6
+    },
+    "use_case_tags": ["gaming", "student"],
+    "rating": 4.2,
+    "image_placeholder": "laptop-3.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Lenovo ThinkPad X1 Carbon",
+    "brand": "Lenovo",
+    "price": 110000,
+    "specs": {
+      "cpu": "Intel Core i7-1260P",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 15
+    },
+    "use_case_tags": ["office", "coding"],
+    "rating": 4.6,
+    "image_placeholder": "laptop-4.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Acer Aspire 5",
+    "brand": "Acer",
+    "price": 45000,
+    "specs": {
+      "cpu": "Intel Core i5-1135G7",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 8
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.0,
+    "image_placeholder": "laptop-5.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Asus ROG Zephyrus G14",
+    "brand": "Asus",
+    "price": 119000,
+    "specs": {
+      "cpu": "AMD Ryzen 9 7940HS",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 4060",
+      "battery_life_hours": 7
+    },
+    "use_case_tags": ["gaming", "coding"],
+    "rating": 4.8,
+    "image_placeholder": "laptop-6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Microsoft Surface Laptop 5",
+    "brand": "Microsoft",
+    "price": 98000,
+    "specs": {
+      "cpu": "Intel Core i7-1265U",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 16
+    },
+    "use_case_tags": ["office", "student"],
+    "rating": 4.4,
+    "image_placeholder": "laptop-7.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Gigabyte Aero 15",
+    "brand": "Gigabyte",
+    "price": 102000,
+    "specs": {
+      "cpu": "Intel Core i7-12700H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 9
+    },
+    "use_case_tags": ["creative", "coding"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-8.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Dell Inspiron 15 5000",
+    "brand": "Dell",
+    "price": 38000,
+    "specs": {
+      "cpu": "Intel Core i3-1115G4",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Intel UHD",
+      "battery_life_hours": 7
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 3.8,
+    "image_placeholder": "laptop-9.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Lenovo Legion 5",
+    "brand": "Lenovo",
+    "price": 85000,
+    "specs": {
+      "cpu": "AMD Ryzen 7 5800H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 6
+    },
+    "use_case_tags": ["gaming", "coding"],
+    "rating": 4.3,
+    "image_placeholder": "laptop-10.jpg"
+  },
+  {
+    "id": 11,
+    "name": "Apple MacBook Pro 14 M2 Pro",
+    "brand": "Apple",
+    "price": 120000,
+    "specs": {
+      "cpu": "Apple M2 Pro",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "gpu": "Apple GPU 16-core",
+      "battery_life_hours": 17
+    },
+    "use_case_tags": ["creative", "coding"],
+    "rating": 4.9,
+    "image_placeholder": "laptop-11.jpg"
+  },
+  {
+    "id": 12,
+    "name": "HP EliteBook 845 G9",
+    "brand": "HP",
+    "price": 77000,
+    "specs": {
+      "cpu": "AMD Ryzen 5 PRO 7640U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "AMD Radeon 680M",
+      "battery_life_hours": 12
+    },
+    "use_case_tags": ["office", "business"],
+    "rating": 4.2,
+    "image_placeholder": "laptop-12.jpg"
+  },
+  {
+    "id": 13,
+    "name": "Asus VivoBook S14",
+    "brand": "Asus",
+    "price": 52000,
+    "specs": {
+      "cpu": "Intel Core i5-1335U",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 9
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.1,
+    "image_placeholder": "laptop-13.jpg"
+  },
+  {
+    "id": 14,
+    "name": "Acer Predator Helios 300",
+    "brand": "Acer",
+    "price": 105000,
+    "specs": {
+      "cpu": "Intel Core i7-12700H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 4070",
+      "battery_life_hours": 5
+    },
+    "use_case_tags": ["gaming", "creative"],
+    "rating": 4.6,
+    "image_placeholder": "laptop-14.jpg"
+  },
+  {
+    "id": 15,
+    "name": "Samsung Galaxy Book Pro 360",
+    "brand": "Samsung",
+    "price": 79000,
+    "specs": {
+      "cpu": "Intel Core i7-1360P",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 20
+    },
+    "use_case_tags": ["coding", "student"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-15.jpg"
+  },
+  {
+    "id": 16,
+    "name": "MSI Stealth 15M",
+    "brand": "MSI",
+    "price": 97000,
+    "specs": {
+      "cpu": "Intel Core i7-12700H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 6
+    },
+    "use_case_tags": ["gaming", "coding"],
+    "rating": 4.4,
+    "image_placeholder": "laptop-16.jpg"
+  },
+  {
+    "id": 17,
+    "name": "Dell G15 5520",
+    "brand": "Dell",
+    "price": 88000,
+    "specs": {
+      "cpu": "Intel Core i7-12700H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 5
+    },
+    "use_case_tags": ["gaming", "office"],
+    "rating": 4.2,
+    "image_placeholder": "laptop-17.jpg"
+  },
+  {
+    "id": 18,
+    "name": "Lenovo IdeaPad Flex 5",
+    "brand": "Lenovo",
+    "price": 42000,
+    "specs": {
+      "cpu": "AMD Ryzen 5 5625U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "AMD Radeon",
+      "battery_life_hours": 10
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.0,
+    "image_placeholder": "laptop-18.jpg"
+  },
+  {
+    "id": 19,
+    "name": "Apple MacBook Air 13 M1",
+    "brand": "Apple",
+    "price": 72000,
+    "specs": {
+      "cpu": "Apple M1",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Apple GPU 7-core",
+      "battery_life_hours": 18
+    },
+    "use_case_tags": ["coding", "student"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-19.jpg"
+  },
+  {
+    "id": 20,
+    "name": "Huawei MateBook D 14",
+    "brand": "Huawei",
+    "price": 38000,
+    "specs": {
+      "cpu": "AMD Ryzen 5 5500U",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "AMD Radeon",
+      "battery_life_hours": 9
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 3.9,
+    "image_placeholder": "laptop-20.jpg"
+  },
+  {
+    "id": 21,
+    "name": "Acer Swift 3",
+    "brand": "Acer",
+    "price": 46000,
+    "specs": {
+      "cpu": "Intel Core i5-1235U",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 11
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.1,
+    "image_placeholder": "laptop-21.jpg"
+  },
+  {
+    "id": 22,
+    "name": "Razer Blade 14",
+    "brand": "Razer",
+    "price": 119000,
+    "specs": {
+      "cpu": "AMD Ryzen 9 7940HS",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 4070",
+      "battery_life_hours": 7
+    },
+    "use_case_tags": ["gaming", "creative"],
+    "rating": 4.8,
+    "image_placeholder": "laptop-22.jpg"
+  },
+  {
+    "id": 23,
+    "name": "Microsoft Surface Pro 9",
+    "brand": "Microsoft",
+    "price": 85000,
+    "specs": {
+      "cpu": "Intel Core i5-1335U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 14
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.3,
+    "image_placeholder": "laptop-23.jpg"
+  },
+  {
+    "id": 24,
+    "name": "LG Gram 16",
+    "brand": "LG",
+    "price": 95000,
+    "specs": {
+      "cpu": "Intel Core i7-1360P",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 19
+    },
+    "use_case_tags": ["coding", "office"],
+    "rating": 4.6,
+    "image_placeholder": "laptop-24.jpg"
+  },
+  {
+    "id": 25,
+    "name": "Toshiba Dynabook Portégé X30L",
+    "brand": "Toshiba",
+    "price": 68000,
+    "specs": {
+      "cpu": "Intel Core i5-1345U",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 13
+    },
+    "use_case_tags": ["business", "office"],
+    "rating": 4.0,
+    "image_placeholder": "laptop-25.jpg"
+  },
+  {
+    "id": 26,
+    "name": "HP Omen 16",
+    "brand": "HP",
+    "price": 115000,
+    "specs": {
+      "cpu": "AMD Ryzen 9 7900HS",
+      "ram": "32GB",
+      "storage": "2TB SSD",
+      "gpu": "NVIDIA RTX 4080",
+      "battery_life_hours": 4
+    },
+    "use_case_tags": ["gaming", "creative"],
+    "rating": 4.9,
+    "image_placeholder": "laptop-26.jpg"
+  },
+  {
+    "id": 27,
+    "name": "Asus ZenBook 14",
+    "brand": "Asus",
+    "price": 72000,
+    "specs": {
+      "cpu": "AMD Ryzen 7 7735U",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "AMD Radeon",
+      "battery_life_hours": 12
+    },
+    "use_case_tags": ["coding", "student"],
+    "rating": 4.4,
+    "image_placeholder": "laptop-27.jpg"
+  },
+  {
+    "id": 30,
+    "name": "Dell Latitude 5430",
+    "brand": "Dell",
+    "price": 64000,
+    "specs": {
+      "cpu": "Intel Core i5-1240P",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 14
+    },
+    "use_case_tags": ["business", "office"],
+    "rating": 4.2,
+    "image_placeholder": "laptop-30.jpg"
+  },
+  {
+    "id": 31,
+    "name": "Acer Chromebook Spin 714",
+    "brand": "Acer",
+    "price": 32000,
+    "specs": {
+      "cpu": "Intel Core i3-1115G4",
+      "ram": "8GB",
+      "storage": "128GB SSD",
+      "gpu": "Intel UHD",
+      "battery_life_hours": 12
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 4.0,
+    "image_placeholder": "laptop-31.jpg"
+  },
+  {
+    "id": 32,
+    "name": "MSI Creator Z16",
+    "brand": "MSI",
+    "price": 112000,
+    "specs": {
+      "cpu": "Intel Core i9-13980HX",
+      "ram": "32GB",
+      "storage": "2TB SSD",
+      "gpu": "NVIDIA RTX 4070",
+      "battery_life_hours": 6
+    },
+    "use_case_tags": ["creative", "coding"],
+    "rating": 4.7,
+    "image_placeholder": "laptop-32.jpg"
+  },
+  {
+    "id": 33,
+    "name": "Lenovo Yoga 9i",
+    "brand": "Lenovo",
+    "price": 86000,
+    "specs": {
+      "cpu": "Intel Core i7-1360P",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 15
+    },
+    "use_case_tags": ["student", "creative"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-33.jpg"
+  },
+  {
+    "id": 34,
+    "name": "HP Victus 16",
+    "brand": "HP",
+    "price": 96000,
+    "specs": {
+      "cpu": "AMD Ryzen 7 6800H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 5
+    },
+    "use_case_tags": ["gaming", "coding"],
+    "rating": 4.3,
+    "image_placeholder": "laptop-34.jpg"
+  },
+  {
+    "id": 35,
+    "name": "Apple MacBook Air 15 M2",
+    "brand": "Apple",
+    "price": 105000,
+    "specs": {
+      "cpu": "Apple M2",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "gpu": "Apple GPU 10-core",
+      "battery_life_hours": 18
+    },
+    "use_case_tags": ["coding", "creative"],
+    "rating": 4.8,
+    "image_placeholder": "laptop-35.jpg"
+  },
+  {
+    "id": 36,
+    "name": "Dell Inspiron 14 5406",
+    "brand": "Dell",
+    "price": 42000,
+    "specs": {
+      "cpu": "Intel Core i5-1135G7",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 9
+    },
+    "use_case_tags": ["student", "office"],
+    "rating": 3.9,
+    "image_placeholder": "laptop-36.jpg"
+  },
+  {
+    "id": 37,
+    "name": "Gigabyte AERO 16",
+    "brand": "Gigabyte",
+    "price": 95000,
+    "specs": {
+      "cpu": "Intel Core i7-12800H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 9
+    },
+    "use_case_tags": ["creative", "coding"],
+    "rating": 4.5,
+    "image_placeholder": "laptop-37.jpg"
+  },
+  {
+    "id": 38,
+    "name": "Acer Nitro 5",
+    "brand": "Acer",
+    "price": 72000,
+    "specs": {
+      "cpu": "AMD Ryzen 5 5600H",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "NVIDIA GTX 1650",
+      "battery_life_hours": 5
+    },
+    "use_case_tags": ["gaming", "student"],
+    "rating": 4.0,
+    "image_placeholder": "laptop-38.jpg"
+  },
+  {
+    "id": 39,
+    "name": "Microsoft Surface Laptop Studio",
+    "brand": "Microsoft",
+    "price": 115000,
+    "specs": {
+      "cpu": "Intel Core i7-12800H",
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "gpu": "NVIDIA RTX 3060",
+      "battery_life_hours": 8
+    },
+    "use_case_tags": ["creative", "coding"],
+    "rating": 4.6,
+    "image_placeholder": "laptop-39.jpg"
+  },
+  {
+    "id": 40,
+    "name": "Lenovo ThinkPad E15",
+    "brand": "Lenovo",
+    "price": 54000,
+    "specs": {
+      "cpu": "Intel Core i5-1240P",
+      "ram": "8GB",
+      "storage": "512GB SSD",
+      "gpu": "Intel Iris Xe",
+      "battery_life_hours": 11
+    },
+    "use_case_tags": ["office", "business"],
+    "rating": 4.1,
+    "image_placeholder": "laptop-40.jpg"
+  }
+]
