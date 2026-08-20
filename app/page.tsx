@@ -1,100 +1,553 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import LaptopImage from "@/components/LaptopImage";
+
+// Interfaces for TypeScript type safety
+interface Product {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  specs: {
+    cpu: string;
+    ram: string;
+    storage: string;
+    gpu: string;
+    battery_life_hours: number;
+  };
+  use_case_tags: string[];
+  rating: number;
+  image_placeholder: string;
+  match_score?: number;
+  match_reasons?: string[];
+}
+
+interface SearchCriteria {
+  budget_max: number;
+  budget_min: number | null;
+  use_case: string[];
+  must_have_features: string[];
+}
+
+interface Recommendation {
+  product: Product;
+  explanation: string;
+}
+
+interface SearchResponse {
+  requirements: SearchCriteria;
+  results: Product[];
+  recommendation: Recommendation | null;
+  strict_budget_match: boolean;
+  fallback_mode: boolean;
+}
+
+// -------------------------------------------------------------
+// SVG Helper Icons (Zero External Dependencies)
+// -------------------------------------------------------------
+
+const SparklesIcon = () => (
+  <svg className="w-5 h-5 text-violet-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21L7.188 15.904L2 15L7.188 14.096L9 9L9.813 14.096L15 15L9.813 15.904ZM18.25 5.25L17.5 9L16 5.25L12.25 4.5L16 3.75L17.5 0L19 3.75L22.75 4.5L18.25 5.25Z" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const StarIcon = ({ filled = false }: { filled?: boolean }) => (
+  <svg className={`w-4 h-4 ${filled ? "fill-amber-400 text-amber-400" : "text-slate-700"}`} viewBox="0 0 20 20" fill="currentColor">
+    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+  </svg>
+);
+
+const CartIcon = () => (
+  <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+);
+
+// Helper function to dynamically rate laptop performance out of 5 stars based on CPU/GPU
+function getPerformanceStars(cpu: string, gpu: string): number {
+  const cpuLower = cpu.toLowerCase();
+  const gpuLower = gpu.toLowerCase();
+
+  // 5 Stars: Core i9/Ryzen 9 or Dedicated RTX 40/30 GPU or M1/M2/M3 Pro/Max series
+  if (
+    gpuLower.includes('rtx 40') || 
+    gpuLower.includes('rtx 30') || 
+    cpuLower.includes('i9') || 
+    cpuLower.includes('ryzen 9') || 
+    cpuLower.includes('pro') || 
+    cpuLower.includes('max')
+  ) {
+    return 5;
+  }
+
+  // 4 Stars: Core i7/Ryzen 7 or other dedicated GPUs or standard Apple M series
+  if (
+    gpuLower.includes('rtx') || 
+    gpuLower.includes('nvidia') || 
+    gpuLower.includes('gtx') || 
+    gpuLower.includes('radeon') ||
+    cpuLower.includes('i7') || 
+    cpuLower.includes('ryzen 7') || 
+    cpuLower.includes('m1') || 
+    cpuLower.includes('m2') || 
+    cpuLower.includes('m3')
+  ) {
+    return 4;
+  }
+
+  // 3 Stars: Core i5/Ryzen 5 or Iris Xe graphics
+  if (
+    cpuLower.includes('i5') || 
+    cpuLower.includes('ryzen 5') || 
+    gpuLower.includes('iris xe') || 
+    gpuLower.includes('intel iris')
+  ) {
+    return 3;
+  }
+
+  // 2 Stars: Core i3/Ryzen 3 or basic Intel HD/UHD graphics
+  if (
+    cpuLower.includes('i3') || 
+    cpuLower.includes('ryzen 3') || 
+    gpuLower.includes('uhd') || 
+    gpuLower.includes('intel hd')
+  ) {
+    return 2;
+  }
+
+  return 1;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [error, setError] = useState("");
+  
+  // API Response States
+  const [results, setResults] = useState<Product[]>([]);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [strictBudgetMatch, setStrictBudgetMatch] = useState(true);
+  const [fallbackMode, setFallbackMode] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Smart Cart States
+  const [cart, setCart] = useState<Product[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const addToCart = (product: Product) => {
+    if (!cart.some((item) => item.id === product.id)) {
+      setCart((prev) => [...prev, product]);
+    }
+  };
+
+  const removeFromCart = (productId: number) => {
+    setCart((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim() || loading) return;
+
+    setLoading(true);
+    setError("");
+    setHasSearched(true);
+
+    try {
+      const res = await fetch("/api/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server responded with status ${res.status}`);
+      }
+
+      const data: SearchResponse = await res.json();
+      
+      setResults(data.results);
+      setRecommendation(data.recommendation);
+      setStrictBudgetMatch(data.strict_budget_match);
+      setFallbackMode(data.fallback_mode);
+
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "An unexpected connection error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#030712] bg-gradient-to-b from-[#030712] via-[#090d1f] to-[#030712] text-slate-100 flex flex-col font-sans select-none antialiased">
+      
+      {/* ----------------- SEO METADATA ----------------- */}
+      <head>
+        <title>ShopGenie AI | Intelligent Laptop Shopping Assistant</title>
+        <meta name="description" content="Use natural language queries to discover, compare, and get expert recommendations on laptops using ShopGenie AI." />
+      </head>
+
+      {/* ----------------- MAIN LAYOUT CONTAINER ----------------- */}
+      <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col items-center justify-start gap-12">
+        
+        {/* HEADER SECTION */}
+        <header className="w-full flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-slate-800/80 pb-6">
+          <div className="flex items-center gap-2.5 text-center sm:text-left">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-500/20 border border-violet-400/20">
+              <SparklesIcon />
+            </div>
+            <div className="text-left">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-violet-200 via-fuchsia-100 to-indigo-200 bg-clip-text text-transparent">
+                ShopGenie AI
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400 font-medium tracking-tight">
+                Your Intelligent Agentic Shopping Assistant
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="relative p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-violet-500/40 text-slate-300 hover:text-white transition-all duration-300 active:scale-95 shadow-md flex items-center gap-2 cursor-pointer"
+            id="cart-button"
+            aria-label="Open Shopping Plan"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <CartIcon />
+            <span className="text-xs font-semibold hidden md:inline">Shopping Plan</span>
+            {cart.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white ring-2 ring-[#030712] animate-bounce">
+                {cart.length}
+              </span>
+            )}
+          </button>
+        </header>
+
+        {/* SEARCH BOX BOX */}
+        <section className="w-full max-w-2xl" aria-label="Search Form Container">
+          <form
+            onSubmit={handleSearch}
+            className="flex flex-col sm:flex-row items-stretch gap-3 bg-slate-900/60 backdrop-blur-xl border border-slate-800 focus-within:border-violet-500/50 rounded-2xl p-2.5 transition-all duration-300 shadow-2xl"
           >
-            Read our docs
-          </a>
+            <div className="flex-1 flex items-center gap-3 px-3 py-1 bg-slate-950/40 rounded-xl">
+              <SearchIcon />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="laptop for coding under 60000"
+                className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-sm text-slate-100 placeholder-slate-500"
+                id="search-input"
+                disabled={loading}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className={`px-6 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-md active:scale-98 transition-all duration-200 cursor-pointer ${
+                loading ? "opacity-50 pointer-events-none" : "shadow-violet-500/10"
+              }`}
+              id="search-button"
+            >
+              Find My Laptop
+            </button>
+          </form>
+        </section>
+
+        {/* ----------------- DYNAMIC STATES BOARD ----------------- */}
+        
+        {/* 1. LOADING SCREEN */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-violet-500/10 border-t-violet-500 animate-spin" />
+            </div>
+            <span className="text-sm font-semibold text-violet-300 animate-pulse">ShopGenie is thinking...</span>
+          </div>
+        )}
+
+        {/* 2. ERROR DISPLAY */}
+        {error && !loading && (
+          <div className="w-full max-w-2xl bg-red-950/20 border border-red-500/30 text-red-300 p-4 rounded-xl text-sm leading-relaxed text-center">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* 3. RESULTS AND DASHBOARD VIEW */}
+        {!loading && hasSearched && !error && (
+          <div className="w-full space-y-10 animate-fade-in">
+            {/* Fallback & Strict warnings */}
+            {fallbackMode && (
+              <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-3.5 rounded-xl text-xs leading-relaxed text-center">
+                ⚠️ **LLM Offline (Local Fallback Search Enabled)**: Your API key has an insufficient credit balance. Search matches are processed locally via keywords.
+              </div>
+            )}
+            {!strictBudgetMatch && (
+              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-300 p-3.5 rounded-xl text-xs leading-relaxed text-center">
+                ℹ️ **Budget Adjusted**: No products met your exact budget strictly. Budget limits were relaxed to return the closest matching models.
+              </div>
+            )}
+
+            {results.length > 0 ? (
+              <>
+                {/* A. COMPARISON TABLE BOARD */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-bold text-slate-200 tracking-tight flex items-center gap-2 px-1">
+                    System Comparison
+                    <span className="text-2xs bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Top 3 Matches</span>
+                  </h2>
+                  
+                  <div className="bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-800/80 overflow-hidden shadow-xl">
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                            <th className="px-6 py-4">Product Name</th>
+                            <th className="px-6 py-4">Price</th>
+                            <th className="px-6 py-4">Performance</th>
+                            <th className="px-6 py-4">Battery</th>
+                            <th className="px-6 py-4 text-right">Match Score</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                          {results.map((product) => {
+                            const performanceStars = getPerformanceStars(product.specs.cpu, product.specs.gpu);
+                            const isInCart = cart.some(item => item.id === product.id);
+                            return (
+                              <tr key={product.id} className="hover:bg-slate-900/30 transition-colors duration-150">
+                                <td className="px-6 py-4.5 font-bold text-slate-100">
+                                  {product.brand} {product.name}
+                                </td>
+                                <td className="px-6 py-4.5 font-semibold text-emerald-400">
+                                  ₹{product.price.toLocaleString("en-IN")}
+                                </td>
+                                <td className="px-6 py-4.5">
+                                  <div className="flex items-center gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                      <StarIcon key={i} filled={i < performanceStars} />
+                                    ))}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4.5 text-slate-400">
+                                  ~{product.specs.battery_life_hours} hours
+                                </td>
+                                <td className="px-6 py-4.5 text-right font-extrabold text-violet-400 text-sm">
+                                  {product.match_score}%
+                                </td>
+                                <td className="px-6 py-4.5 text-right">
+                                  {isInCart ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-slate-500 text-2xs font-semibold select-none">
+                                      ✓ Added
+                                    </span>
+                                  ) : (
+                                    <button
+                                      onClick={() => addToCart(product)}
+                                      className="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-2xs font-semibold active:scale-95 transition-all duration-200 cursor-pointer"
+                                    >
+                                      + Plan
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* B. RECOMMENDED TARGET CARD */}
+                {recommendation && (
+                  <div className="space-y-4">
+                    <h2 className="text-lg font-bold text-slate-200 tracking-tight flex items-center gap-2 px-1">
+                      Expert Selection
+                    </h2>
+                    
+                    <div className="relative rounded-2xl bg-gradient-to-tr from-slate-900 to-[#12132e]/50 border border-violet-500/20 p-6 shadow-2xl flex flex-col md:flex-row items-center gap-6 overflow-hidden">
+                      {/* Top Match Tag Overlay */}
+                      <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-extrabold text-[10px] tracking-wide uppercase px-3 py-1 rounded-full shadow-md">
+                        <SparklesIcon />
+                        #1 Ranked Choice - {recommendation.product.match_score}% Match
+                      </div>
+
+                      {/* Customized Vector Laptop SVG */}
+                      <div className="w-40 h-32 bg-slate-950/60 rounded-xl border border-slate-800/80 flex items-center justify-center shrink-0 shadow-inner p-2 relative group-hover:scale-102 transition-transform duration-300">
+                        <LaptopImage brand={recommendation.product.brand} className="w-full h-full" />
+                      </div>
+
+                      {/* Review details */}
+                      <div className="flex-1 space-y-3.5 text-center md:text-left">
+                        <div>
+                          <span className="text-[10px] uppercase font-extrabold tracking-widest text-violet-400">
+                            {recommendation.product.brand}
+                          </span>
+                          <h3 className="text-xl font-bold text-slate-100">
+                            {recommendation.product.name}
+                          </h3>
+                        </div>
+
+                        {/* Specs grid */}
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-xs text-slate-400">
+                          <span className="bg-slate-800/80 border border-slate-700/50 px-2 py-0.5 rounded-md">
+                            💻 {recommendation.product.specs.cpu}
+                          </span>
+                          <span className="bg-slate-800/80 border border-slate-700/50 px-2 py-0.5 rounded-md">
+                            💾 {recommendation.product.specs.ram} RAM
+                          </span>
+                          <span className="bg-slate-800/80 border border-slate-700/50 px-2 py-0.5 rounded-md">
+                            💿 {recommendation.product.specs.storage}
+                          </span>
+                        </div>
+
+                        {/* Explanation block */}
+                        <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-900 shadow-inner">
+                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                            &quot;{recommendation.explanation}&quot;
+                          </p>
+                        </div>
+
+                        {/* Price Tag & CTA */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-900 mt-4">
+                          <span className="text-lg font-extrabold text-emerald-400">
+                            ₹{recommendation.product.price.toLocaleString("en-IN")}
+                          </span>
+                          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            {cart.some(item => item.id === recommendation.product.id) ? (
+                              <span className="px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-900/50 text-slate-500 text-xs font-semibold select-none">
+                                ✓ Added to Shopping Plan
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => addToCart(recommendation.product)}
+                                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-xs transition-all duration-200 active:scale-95 cursor-pointer shadow-md shadow-violet-600/10"
+                              >
+                                Add to Shopping Plan
+                              </button>
+                            )}
+                            <button
+                              onClick={() => alert(`Redirecting to checkout for ${recommendation.product.name} at ₹${recommendation.product.price.toLocaleString("en-IN")}`)}
+                              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 hover:text-white font-semibold text-xs transition-all active:scale-97 cursor-pointer"
+                            >
+                              Proceed to Buy
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* C. NO MATCH STATE CHANNELS */
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-slate-900/20 rounded-2xl border border-slate-800/60 max-w-xl mx-auto">
+                <div className="w-12 h-12 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-500 mb-4 animate-pulse">
+                  ⚠️
+                </div>
+                <h3 className="text-base font-bold text-slate-300">No exact matches found</h3>
+                <p className="text-xs text-slate-500 max-w-sm mt-1.5 leading-relaxed">
+                  Try increasing your budget or simplifying the search features in your query.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      {/* CART DRAWER SIDEBAR & BACKDROP OVERLAY */}
+      {isCartOpen && (
+        <div
+          onClick={() => setIsCartOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300"
+        />
+      )}
+
+      <div
+        className={`fixed top-0 right-0 h-full w-full sm:max-w-md bg-[#050914]/95 backdrop-blur-2xl border-l border-slate-800/80 shadow-2xl z-50 transform transition-transform duration-300 flex flex-col justify-between ${
+          isCartOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        aria-label="Shopping Plan Cart Sidebar"
+      >
+        {/* Drawer Header */}
+        <div className="p-5 border-b border-slate-800/60 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CartIcon />
+            <h3 className="font-extrabold text-base text-slate-100">Your Shopping Plan</h3>
+          </div>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 active:scale-95 cursor-pointer text-xs font-bold transition-all duration-200"
+          >
+            ✕
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Cart Items List */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin">
+          {cart.length > 0 ? (
+            cart.map((item) => (
+              <div key={item.id} className="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-md">
+                <div className="min-w-0">
+                  <span className="text-[9px] uppercase font-bold text-violet-400 tracking-wider">{item.brand}</span>
+                  <h4 className="font-bold text-xs text-slate-100 truncate">{item.name}</h4>
+                  <p className="text-2xs text-slate-400 mt-0.5 line-clamp-1">{item.specs.cpu} | {item.specs.ram} RAM</p>
+                  <span className="text-xs font-extrabold text-emerald-400 block mt-1">₹{item.price.toLocaleString("en-IN")}</span>
+                </div>
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="p-2 rounded-lg bg-red-950/20 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 transition-all duration-200 active:scale-95 cursor-pointer shrink-0"
+                  aria-label={`Remove ${item.name} from plan`}
+                >
+                  🗑️
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center py-20 space-y-3">
+              <div className="w-12 h-12 rounded-full bg-slate-900/60 border border-slate-800 flex items-center justify-center text-slate-600 text-lg">
+                🛒
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Your shopping plan is currently empty.</p>
+              <p className="text-3xs text-slate-500 max-w-[200px]">Add laptops from the matches grid to compare them here!</p>
+            </div>
+          )}
+        </div>
+
+        {/* Cart Footer */}
+        {cart.length > 0 && (
+          <div className="p-5 border-t border-slate-800/80 bg-slate-950/80 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-400">Total Price ({cart.length} items):</span>
+              <span className="text-lg font-black text-emerald-400">₹{cartTotal.toLocaleString("en-IN")}</span>
+            </div>
+            <button
+              onClick={() => alert(`Starting purchase checkout for ${cart.length} laptops at ₹${cartTotal.toLocaleString("en-IN")}!`)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/10 transition-all active:scale-98 cursor-pointer text-center"
+            >
+              Checkout All
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* FOOTER */}
+      <footer className="border-t border-slate-900 bg-slate-950/40 py-4 text-center px-4">
+        <p className="text-[10px] text-slate-500 font-medium tracking-tight">
+          ShopGenie AI © {new Date().getFullYear()} — Natural Language shopping matching engine powered by Gemini & Claude.
+        </p>
       </footer>
     </div>
   );
