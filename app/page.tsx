@@ -154,6 +154,65 @@ export default function Home() {
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
 
+  // Checkout flow states & actions
+  const [checkoutStep, setCheckoutStep] = useState<"cart" | "form" | "success">("cart");
+  const [checkoutForm, setCheckoutForm] = useState({ name: "", email: "", address: "" });
+  const [orderId, setOrderId] = useState("");
+
+  const estimatedTax = cartTotal * 0.05;
+  const grandTotal = cartTotal + estimatedTax;
+
+  const handlePlaceOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newOrderId = "ORD-" + Math.floor(100000 + Math.random() * 900000);
+    setOrderId(newOrderId);
+    setCheckoutStep("success");
+
+    // Send confirmation email asynchronously using Resend API route
+    fetch("/api/send-order-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: checkoutForm.email,
+        orderId: newOrderId,
+        productName: cart.map((item) => `${item.brand} ${item.name}`).join(", "),
+        price: grandTotal,
+        address: checkoutForm.address,
+      }),
+    }).catch((err) => {
+      console.error("Failed to send checkout confirmation email:", err);
+    });
+  };
+
+  const handleContinueShopping = () => {
+    setCart([]);
+    setCheckoutForm({ name: "", email: "", address: "" });
+    setOrderId("");
+    setCheckoutStep("cart");
+    setIsCartOpen(false);
+  };
+
+  const handleProceedToBuy = (product: Product) => {
+    if (!cart.some((item) => item.id === product.id)) {
+      setCart((prev) => [...prev, product]);
+    }
+    setCheckoutStep("form");
+    setIsCartOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setIsCartOpen(false);
+    // If closing on success step, we complete the checkout cycle
+    if (checkoutStep === "success") {
+      setCart([]);
+      setCheckoutForm({ name: "", email: "", address: "" });
+      setOrderId("");
+    }
+    setCheckoutStep("cart");
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim() || loading) return;
@@ -201,12 +260,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#030712] bg-gradient-to-b from-[#030712] via-[#090d1f] to-[#030712] text-slate-100 flex flex-col font-sans select-none antialiased">
       
-      {/* ----------------- SEO METADATA ----------------- */}
-      <head>
-        <title>ShopGenie AI | Intelligent Laptop Shopping Assistant</title>
-        <meta name="description" content="Use natural language queries to discover, compare, and get expert recommendations on laptops using ShopGenie AI." />
-      </head>
-
       {/* ----------------- MAIN LAYOUT CONTAINER ----------------- */}
       <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col items-center justify-start gap-12">
         
@@ -457,7 +510,7 @@ export default function Home() {
                               </button>
                             )}
                             <button
-                              onClick={() => alert(`Redirecting to checkout for ${recommendation.product.name} at ₹${recommendation.product.price.toLocaleString("en-IN")}`)}
+                              onClick={() => handleProceedToBuy(recommendation.product)}
                               className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 hover:text-white font-semibold text-xs transition-all active:scale-97 cursor-pointer"
                             >
                               Proceed to Buy
@@ -487,9 +540,10 @@ export default function Home() {
       </div>
 
       {/* CART DRAWER SIDEBAR & BACKDROP OVERLAY */}
+      {/* CART DRAWER SIDEBAR & BACKDROP OVERLAY */}
       {isCartOpen && (
         <div
-          onClick={() => setIsCartOpen(false)}
+          onClick={closeDrawer}
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300"
         />
       )}
@@ -504,10 +558,12 @@ export default function Home() {
         <div className="p-5 border-b border-slate-800/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CartIcon />
-            <h3 className="font-extrabold text-base text-slate-100">Your Shopping Plan</h3>
+            <h3 className="font-extrabold text-base text-slate-100">
+              {checkoutStep === "cart" ? "Your Shopping Plan" : checkoutStep === "form" ? "Checkout Details" : "Success"}
+            </h3>
           </div>
           <div className="flex items-center gap-3">
-            {cart.length > 0 && (
+            {checkoutStep === "cart" && cart.length > 0 && (
               <button
                 onClick={() => {
                   if (confirm("Are you sure you want to clear your shopping plan?")) {
@@ -521,66 +577,198 @@ export default function Home() {
               </button>
             )}
             <button
-              onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 active:scale-95 cursor-pointer text-xs font-bold transition-all duration-200"
+              onClick={closeDrawer}
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 active:scale-95 transition-all duration-200"
             >
               ✕
             </button>
           </div>
         </div>
 
-        {/* Cart Items List */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin">
-          {cart.length > 0 ? (
-            cart.map((item) => (
-              <div key={item.id} className="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-md">
-                <div className="min-w-0">
-                  <span className="text-[9px] uppercase font-bold text-violet-400 tracking-wider">{item.brand}</span>
-                  <h4 className="font-bold text-xs text-slate-100 truncate">{item.name}</h4>
-                  <p className="text-2xs text-slate-400 mt-0.5 line-clamp-1">{item.specs.cpu} | {item.specs.ram} RAM</p>
-                  <span className="text-xs font-extrabold text-emerald-400 block mt-1">₹{item.price.toLocaleString("en-IN")}</span>
+        {/* STEP 1: CART VIEW */}
+        {checkoutStep === "cart" && (
+          <>
+            {/* Cart Items List */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin">
+              {cart.length > 0 ? (
+                cart.map((item) => (
+                  <div key={item.id} className="bg-slate-900/40 border border-slate-800/60 rounded-xl p-3.5 flex items-center justify-between gap-3 shadow-md">
+                    <div className="min-w-0">
+                      <span className="text-[9px] uppercase font-bold text-violet-400 tracking-wider">{item.brand}</span>
+                      <h4 className="font-bold text-xs text-slate-100 truncate">{item.name}</h4>
+                      <p className="text-2xs text-slate-400 mt-0.5 line-clamp-1">{item.specs.cpu} | {item.specs.ram} RAM</p>
+                      <span className="text-xs font-extrabold text-emerald-400 block mt-1">₹{item.price.toLocaleString("en-IN")}</span>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="p-2 rounded-lg bg-red-950/20 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 transition-all duration-200 active:scale-95 cursor-pointer shrink-0"
+                      aria-label={`Remove ${item.name} from plan`}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-20 space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-900/60 border border-slate-800 flex items-center justify-center text-slate-600 text-lg">
+                    🛒
+                  </div>
+                  <p className="text-xs text-slate-400 font-medium">Your shopping plan is currently empty.</p>
+                  <p className="text-3xs text-slate-500 max-w-[200px]">Add laptops from the matches grid to compare them here!</p>
+                </div>
+              )}
+            </div>
+
+            {/* Cart Footer */}
+            {cart.length > 0 && (
+              <div className="p-5 border-t border-slate-800/80 bg-slate-950/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-400">Total Price ({cart.length} items):</span>
+                  <span className="text-lg font-black text-emerald-400">₹{cartTotal.toLocaleString("en-IN")}</span>
                 </div>
                 <button
-                  onClick={() => removeFromCart(item.id)}
-                  className="p-2 rounded-lg bg-red-950/20 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:text-red-300 transition-all duration-200 active:scale-95 cursor-pointer shrink-0"
-                  aria-label={`Remove ${item.name} from plan`}
+                  onClick={() => setCheckoutStep("form")}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/10 transition-all active:scale-98 cursor-pointer text-center"
                 >
-                  🗑️
+                  Proceed to Checkout
                 </button>
               </div>
-            ))
-          ) : (
-            <div className="flex flex-col items-center justify-center text-center py-20 space-y-3">
-              <div className="w-12 h-12 rounded-full bg-slate-900/60 border border-slate-800 flex items-center justify-center text-slate-600 text-lg">
-                🛒
-              </div>
-              <p className="text-xs text-slate-400 font-medium">Your shopping plan is currently empty.</p>
-              <p className="text-3xs text-slate-500 max-w-[200px]">Add laptops from the matches grid to compare them here!</p>
-            </div>
-          )}
-        </div>
+            )}
+          </>
+        )}
 
-        {/* Cart Footer */}
-        {cart.length > 0 && (
-          <div className="p-5 border-t border-slate-800/80 bg-slate-950/80 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-400">Total Price ({cart.length} items):</span>
-              <span className="text-lg font-black text-emerald-400">₹{cartTotal.toLocaleString("en-IN")}</span>
+        {/* STEP 2: CHECKOUT FORM SUMMARY VIEW */}
+        {checkoutStep === "form" && (
+          <form onSubmit={handlePlaceOrder} className="flex-1 flex flex-col justify-between overflow-hidden">
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin">
+              {/* Back Link */}
+              <button
+                type="button"
+                onClick={() => setCheckoutStep("cart")}
+                className="text-[10px] text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1 hover:underline cursor-pointer uppercase tracking-wider"
+              >
+                ← Back to plan
+              </button>
+
+              {/* Order Summary breakdown */}
+              <div className="bg-slate-900/40 border border-slate-800/60 rounded-xl p-4 space-y-2.5">
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Summary</h4>
+                <div className="space-y-1.5 text-xs text-slate-300">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center gap-3">
+                      <span className="truncate max-w-[220px] text-slate-400">{item.brand} {item.name}</span>
+                      <span className="font-semibold shrink-0">₹{item.price.toLocaleString("en-IN")}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-slate-850 pt-2.5 space-y-1.5 text-xs">
+                  <div className="flex justify-between text-slate-500">
+                    <span>Subtotal</span>
+                    <span>₹{cartTotal.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Estimated Tax (5%)</span>
+                    <span>₹{estimatedTax.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-200 font-bold text-sm pt-2 border-t border-slate-800/50">
+                    <span>Grand Total</span>
+                    <span className="text-emerald-400">₹{grandTotal.toLocaleString("en-IN")}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkout Fields */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Shipping Details</h4>
+                <div className="space-y-3.5">
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+                    <input
+                      type="text"
+                      id="checkout-name"
+                      value={checkoutForm.name}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-slate-950/40 border border-slate-800 focus:border-violet-500/50 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all duration-200 shadow-inner"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-email" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+                    <input
+                      type="email"
+                      id="checkout-email"
+                      value={checkoutForm.email}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full bg-slate-950/40 border border-slate-800 focus:border-violet-500/50 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all duration-200 shadow-inner"
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="checkout-address" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Delivery Address</label>
+                    <textarea
+                      id="checkout-address"
+                      value={checkoutForm.address}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, address: e.target.value }))}
+                      rows={3}
+                      className="w-full bg-slate-950/40 border border-slate-800 focus:border-violet-500/50 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-600 outline-none transition-all duration-200 resize-none shadow-inner"
+                      placeholder="123 Main St, Mumbai, India"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Submit Button */}
+            <div className="p-5 border-t border-slate-800/80 bg-slate-950/80">
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/10 transition-all active:scale-98 cursor-pointer text-center"
+              >
+                Place Order
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* STEP 3: SUCCESS STATE VIEW */}
+        {checkoutStep === "success" && (
+          <div className="flex-1 flex flex-col justify-between p-5">
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6">
+              {/* Checkmark circle */}
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl shadow-lg shadow-emerald-500/5 animate-pulse">
+                ✓
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-lg font-black text-slate-100 tracking-tight">Order Placed Successfully!</h3>
+                <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                  Thank you for your order. ShopGenie has successfully registered your laptop shopping plan.
+                </p>
+              </div>
+
+              <div className="bg-slate-900/40 border border-slate-800/60 rounded-xl px-5 py-3 text-center space-y-1">
+                <span className="text-[9px] uppercase font-extrabold tracking-widest text-slate-500">Order Reference ID</span>
+                <span className="text-xs font-bold text-violet-400 block tracking-wider">{orderId}</span>
+              </div>
+            </div>
+
             <button
-              onClick={() => alert(`Starting purchase checkout for ${cart.length} laptops at ₹${cartTotal.toLocaleString("en-IN")}!`)}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/10 transition-all active:scale-98 cursor-pointer text-center"
+              onClick={handleContinueShopping}
+              className="w-full py-3.5 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white font-semibold text-xs transition-all active:scale-98 cursor-pointer text-center"
             >
-              Checkout All
+              Continue Shopping
             </button>
           </div>
         )}
       </div>
 
-      {/* FOOTER */}
       <footer className="border-t border-slate-900 bg-slate-950/40 py-4 text-center px-4">
         <p className="text-[10px] text-slate-500 font-medium tracking-tight">
-          ShopGenie AI © {new Date().getFullYear()} — Natural Language shopping matching engine powered by Gemini & Claude.
+          ShopGenie AI © 2026 — Natural Language shopping matching engine powered by Gemini & Claude.
         </p>
       </footer>
     </div>
