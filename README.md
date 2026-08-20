@@ -77,7 +77,7 @@ Online shopping platforms offer thousands of options with complex, technical spe
 
 | Landing Page | Results Grid | Shopping Planner |
 | :--- | :--- | :--- |
-| ![Landing Page](/public/screenshots/landing.png) | ![Results Grid](/public/screenshots/results.png) | ![Shopping Planner](/public/screenshots/cart.png) |
+| ![Landing Page](<src="https://github.com/user-attachments/assets/7d838b26-0861-4089-8698-e67784af7955" />) | ![Results Grid](/public/screenshots/results.png) | ![Shopping Planner](/public/screenshots/cart.png) |
 
 ---
 
@@ -87,6 +87,7 @@ Online shopping platforms offer thousands of options with complex, technical spe
 ```bash
 git clone https://github.com/lalbabukumar12/shopgenie-ai.git
 cd shopgenie-ai
+
 ```
 
 ### 2. Install dependencies
