@@ -120,4 +120,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to experienc
 ---
 
 ## 🎥 Demo Video
-Watch a quick walkthrough of ShopGenie AI in action: [Demo Video Link Placeholder](https://example.com/demo)
+Watch a quick walkthrough of ShopGenie AI in action: [Demo Video Link Placeholder](https://deluxe-praline-8deb45.netlify.app/)
