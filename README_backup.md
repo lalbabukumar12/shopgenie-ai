@@ -1,2 +1,0 @@
-# shopgenie-ai
-.gitignore
