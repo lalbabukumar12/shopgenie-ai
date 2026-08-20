@@ -190,6 +190,14 @@ export default function Home() {
     }
   };
 
+  const handleClear = () => {
+    setQuery("");
+    setResults([]);
+    setRecommendation(null);
+    setHasSearched(false);
+    setError("");
+  };
+
   return (
     <div className="min-h-screen bg-[#030712] bg-gradient-to-b from-[#030712] via-[#090d1f] to-[#030712] text-slate-100 flex flex-col font-sans select-none antialiased">
       
@@ -262,6 +270,17 @@ export default function Home() {
             >
               Find My Laptop
             </button>
+            {(query.trim() !== "" || hasSearched) && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="px-6 py-3.5 rounded-xl border border-slate-800 hover:bg-slate-800/60 hover:text-white text-slate-400 font-semibold text-sm transition-all duration-200 active:scale-98 cursor-pointer"
+                id="clear-search-button"
+                disabled={loading}
+              >
+                Clear
+              </button>
+            )}
           </form>
         </section>
 
@@ -487,12 +506,27 @@ export default function Home() {
             <CartIcon />
             <h3 className="font-extrabold text-base text-slate-100">Your Shopping Plan</h3>
           </div>
-          <button
-            onClick={() => setIsCartOpen(false)}
-            className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 active:scale-95 cursor-pointer text-xs font-bold transition-all duration-200"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-3">
+            {cart.length > 0 && (
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to clear your shopping plan?")) {
+                    setCart([]);
+                  }
+                }}
+                className="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider hover:underline cursor-pointer active:scale-95 transition-all duration-200"
+                id="clear-cart-button"
+              >
+                Clear All
+              </button>
+            )}
+            <button
+              onClick={() => setIsCartOpen(false)}
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 active:scale-95 cursor-pointer text-xs font-bold transition-all duration-200"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Cart Items List */}
