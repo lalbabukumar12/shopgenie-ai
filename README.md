@@ -77,7 +77,7 @@ Online shopping platforms offer thousands of options with complex, technical spe
 
 | Landing Page | Results Grid | Shopping Planner |
 | :--- | :--- | :--- |
-| ![Landing Page](<src="https://github.com/user-attachments/assets/7d838b26-0861-4089-8698-e67784af7955" />) | ![Results Grid](/public/screenshots/results.png) | ![Shopping Planner](/public/screenshots/cart.png) |
+| ![Landing Page](ss/1.png) | ![Results Grid](ss/2.png) | ![Shopping Planner](ss/3.png) |
 
 ---
 
