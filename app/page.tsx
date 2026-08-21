@@ -21,6 +21,9 @@ interface Product {
   image_placeholder: string;
   match_score?: number;
   match_reasons?: string[];
+  rank?: number;
+  gap_reason?: string;
+  badges?: string[];
 }
 
 interface SearchCriteria {
@@ -213,10 +216,14 @@ export default function Home() {
     setCheckoutStep("cart");
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim() || loading) return;
+  const exampleQueries = [
+    "Gaming laptop under ₹70,000",
+    "Lightweight laptop for travel",
+    "Best value under ₹50,000",
+    "Laptop with best battery life"
+  ];
 
+  const executeSearch = async (searchQuery: string) => {
     setLoading(true);
     setError("");
     setHasSearched(true);
@@ -227,7 +234,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query: searchQuery }),
       });
 
       if (!res.ok) {
@@ -247,6 +254,18 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim() || loading) return;
+    await executeSearch(query);
+  };
+
+  const handleChipClick = async (text: string) => {
+    if (loading) return;
+    setQuery(text);
+    await executeSearch(text);
   };
 
   const handleClear = () => {
@@ -296,7 +315,7 @@ export default function Home() {
         </header>
 
         {/* SEARCH BOX BOX */}
-        <section className="w-full max-w-2xl" aria-label="Search Form Container">
+        <section className="w-full max-w-2xl space-y-3" aria-label="Search Form Container">
           <form
             onSubmit={handleSearch}
             className="flex flex-col sm:flex-row items-stretch gap-3 bg-slate-900/60 backdrop-blur-xl border border-slate-800 focus-within:border-violet-500/50 rounded-2xl p-2.5 transition-all duration-300 shadow-2xl"
@@ -335,6 +354,22 @@ export default function Home() {
               </button>
             )}
           </form>
+
+          {!hasSearched && (
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start px-1 animate-fade-in">
+              <span className="text-2xs text-slate-500 self-center mr-1 font-medium">Examples:</span>
+              {exampleQueries.map((text) => (
+                <button
+                  key={text}
+                  type="button"
+                  onClick={() => handleChipClick(text)}
+                  className="px-3 py-1.5 text-2xs rounded-full bg-slate-900/50 hover:bg-violet-600/20 border border-slate-800 hover:border-violet-500/30 text-slate-400 hover:text-violet-300 transition-all duration-200 active:scale-95 cursor-pointer font-medium"
+                >
+                  {text}
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* ----------------- DYNAMIC STATES BOARD ----------------- */}
@@ -385,6 +420,7 @@ export default function Home() {
                       <table className="w-full border-collapse text-left text-sm">
                         <thead>
                           <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                            <th className="px-6 py-4">Rank</th>
                             <th className="px-6 py-4">Product Name</th>
                             <th className="px-6 py-4">Price</th>
                             <th className="px-6 py-4">Performance</th>
@@ -399,8 +435,41 @@ export default function Home() {
                             const isInCart = cart.some(item => item.id === product.id);
                             return (
                               <tr key={product.id} className="hover:bg-slate-900/30 transition-colors duration-150">
-                                <td className="px-6 py-4.5 font-bold text-slate-100">
-                                  {product.brand} {product.name}
+                                <td className="px-6 py-4.5 font-bold text-slate-400">
+                                  #{product.rank || 1}
+                                </td>
+                                <td className="px-6 py-4.5 font-bold">
+                                  {product.badges && product.badges.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mb-1.5">
+                                      {product.badges.map((badge) => {
+                                        if (badge === "battery") {
+                                          return (
+                                            <span key={badge} className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                              🔋 Best Battery
+                                            </span>
+                                          );
+                                        }
+                                        if (badge === "performance") {
+                                          return (
+                                            <span key={badge} className="inline-flex items-center gap-1 bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                              ⚡ Best Performance
+                                            </span>
+                                          );
+                                        }
+                                        if (badge === "value") {
+                                          return (
+                                            <span key={badge} className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                              💰 Best Value
+                                            </span>
+                                          );
+                                        }
+                                        return null;
+                                      })}
+                                    </div>
+                                  )}
+                                  <div className="text-slate-100 font-bold">
+                                    {product.brand} {product.name}
+                                  </div>
                                 </td>
                                 <td className="px-6 py-4.5 font-semibold text-emerald-400">
                                   ₹{product.price.toLocaleString("en-IN")}
@@ -415,8 +484,15 @@ export default function Home() {
                                 <td className="px-6 py-4.5 text-slate-400">
                                   ~{product.specs.battery_life_hours} hours
                                 </td>
-                                <td className="px-6 py-4.5 text-right font-extrabold text-violet-400 text-sm">
-                                  {product.match_score}%
+                                <td className="px-6 py-4.5 text-right">
+                                  <div className="font-extrabold text-violet-400 text-sm">
+                                    {product.match_score}%
+                                  </div>
+                                  {(product.rank === 2 || product.rank === 3) && product.gap_reason && (
+                                    <div className="text-[10px] text-slate-500 mt-1 max-w-[160px] ml-auto leading-tight font-normal normal-case">
+                                      {product.gap_reason}
+                                    </div>
+                                  )}
                                 </td>
                                 <td className="px-6 py-4.5 text-right">
                                   {isInCart ? (
@@ -463,6 +539,34 @@ export default function Home() {
                       {/* Review details */}
                       <div className="flex-1 space-y-3.5 text-center md:text-left">
                         <div>
+                          {recommendation.product.badges && recommendation.product.badges.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-2.5 justify-center md:justify-start">
+                              {recommendation.product.badges.map((badge) => {
+                                if (badge === "battery") {
+                                  return (
+                                    <span key={badge} className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                      🔋 Best Battery
+                                    </span>
+                                  );
+                                }
+                                if (badge === "performance") {
+                                  return (
+                                    <span key={badge} className="inline-flex items-center gap-1 bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                      ⚡ Best Performance
+                                    </span>
+                                  );
+                                }
+                                if (badge === "value") {
+                                  return (
+                                    <span key={badge} className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase">
+                                      💰 Best Value
+                                    </span>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+                          )}
                           <span className="text-[10px] uppercase font-extrabold tracking-widest text-violet-400">
                             {recommendation.product.brand}
                           </span>

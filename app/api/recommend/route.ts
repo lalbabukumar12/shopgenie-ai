@@ -20,6 +20,11 @@ interface Product {
   use_case_tags: string[];
   rating: number;
   image_placeholder: string;
+  match_score?: number;
+  match_reasons?: string[];
+  rank?: number;
+  gap_reason?: string;
+  badges?: string[];
 }
 
 interface SearchCriteria {
