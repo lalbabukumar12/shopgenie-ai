@@ -118,6 +118,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to experienc
 - **Price Tracking & Alerts**: Track price drops and send alerts when items in the shopping plan reach target budgets.
 
 ---
+## Live link of the project
+[Live Link](https://deluxe-praline-8deb45.netlify.app/)
 
 ## 🎥 Demo Video
-Watch a quick walkthrough of ShopGenie AI in action: [Demo Video Link Placeholder](https://deluxe-praline-8deb45.netlify.app/)
+Watch a quick walkthrough of ShopGenie AI in action: [Demo Video Link-](https://drive.google.com/file/d/1X01QwDGW1zwMS_-MBuRzhYGQ3DQLyZZz/view?usp=sharing)
+
+
